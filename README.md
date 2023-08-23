@@ -1,6 +1,8 @@
 # Custom Image Format `(Test 1)`
 Creating basic image format with CSharp
 
+#### Using
+- System.Drawing.Common `7.0.0`
 
 ### How it works
 1. Reads image pixel by pixel      
