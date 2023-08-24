@@ -20,7 +20,9 @@ public class EncryptionManager : ConsoleController
     * sytnax characthers 
         { } ( ) ,
     */
+
     private Dictionary<Color, string> imageColors = new Dictionary<Color, string>();
+
     public string Encrypt(string filePath)
     {
         string result = "";
@@ -33,11 +35,12 @@ public class EncryptionManager : ConsoleController
                 if (imageColors.Keys.Contains(pixel) == false)
                 {
                     imageColors.Add(pixel, $"({j},{i})");
-                    cwl("pixel added : " + $"{pixel.R},{pixel.G},{pixel.B}");
+                    //cwl("pixel added : " + $"{pixel.R},{pixel.G},{pixel.B}");
+                    cwl(ColorEncryption(pixel));
                 }
                 else
                 {
-                    cwl("---> pixel exists: " + $"{pixel.R},{pixel.G},{pixel.B}");
+                    //cwl("---> pixel exists: " + $"{pixel.R},{pixel.G},{pixel.B}");
                     imageColors[pixel] += $",({j},{i})";
                 }
             }
@@ -48,5 +51,42 @@ public class EncryptionManager : ConsoleController
             cwl(item.Key.R + "," + item.Key.G + "," + item.Key.B + " : " + item.Value);
         }
         return result;
+    }
+    private string ColorEncryption(Color color)
+    {
+        string result = "", r, g, b, a;
+        r = Convert.ToString(color.R, 2).PadLeft(8, '0');
+        g = Convert.ToString(color.G, 2).PadLeft(8, '0');
+        b = Convert.ToString(color.B, 2).PadLeft(8, '0');
+        a = Convert.ToString(color.A, 2).PadLeft(8, '0');
+        result = "(" + CharicEncrypter(r) + "," + CharicEncrypter(g) + "," + CharicEncrypter(b) + "," + CharicEncrypter(a) + ")";
+        return result;
+    }
+    private void CordinateEncryiption()
+    {
+
+    }
+
+    private string CharicEncrypter(string binaryString)
+    {
+        int count = 1;
+        char last = binaryString[0];
+        string encres = "";//encryiption result
+        // using X for 0 , Y for 1 at stacking values
+        for (int i = 1; i < binaryString.Length; i++)
+        {
+            if (last == binaryString[i])
+            {
+                count += 1;
+            }
+            else
+            {
+                encres += count + ((last == '0') ? 'x' : 'y').ToString();
+                count = 1;
+                last = binaryString[i];
+            }
+        }
+        encres += count + ((last == '0') ? 'x' : 'y').ToString();
+        return encres;
     }
 }
