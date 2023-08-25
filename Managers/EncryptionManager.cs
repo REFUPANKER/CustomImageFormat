@@ -11,8 +11,8 @@ public class EncryptionManager : ConsoleController
             author="encrypted text"
             links[]={"encrypted text","encrypted text","encrypted text"}
         </data>
-        #454545 {(4,4),(5,5),(10,4)}
-        #A5F3F3 {(1,3),
+        #454545<-encrypted {(4,4),(5,5),(10,4)}
+        #A5F3F3<-encrypted {(1,3),
         (4,9),
         (10,25)}
         #FFFFFF {(0,0)}
@@ -27,6 +27,7 @@ public class EncryptionManager : ConsoleController
     {
         string result = "";
         Bitmap bmp = new Bitmap(filePath);
+        cwl("Encrypting ...");
         for (int i = 0; i < bmp.Height; i++)
         {
             for (int j = 0; j < bmp.Width; j++)
@@ -36,22 +37,34 @@ public class EncryptionManager : ConsoleController
                 {
                     imageColors.Add(pixel, $"({j},{i})");
                     //cwl("pixel added : " + $"{pixel.R},{pixel.G},{pixel.B}");
-                    cwl(ColorEncryption(pixel));
+                    //cwl(ColorEncryption(pixel));
                 }
                 else
                 {
                     //cwl("---> pixel exists: " + $"{pixel.R},{pixel.G},{pixel.B}");
                     imageColors[pixel] += $",({j},{i})";
                 }
+
             }
+            cwl("%" + (((i + 1) * 100) / bmp.Height));
         }
+        cwl("Encryption Completed");
         cwl(createLine(20, "="));
+
         foreach (var item in imageColors)
         {
-            cwl(item.Key.R + "," + item.Key.G + "," + item.Key.B + " : " + item.Value);
+            result+=ColorEncryption(item.Key) + ":" + item.Value+"\n";
         }
+
         return result;
     }
+
+    private (int, string, bool) multiParam()
+    {
+        return (0, "multi", true);
+    }
+
+
     private string ColorEncryption(Color color)
     {
         string result = "", r, g, b, a;
@@ -61,10 +74,6 @@ public class EncryptionManager : ConsoleController
         a = Convert.ToString(color.A, 2).PadLeft(8, '0');
         result = "(" + CharicEncrypter(r) + "," + CharicEncrypter(g) + "," + CharicEncrypter(b) + "," + CharicEncrypter(a) + ")";
         return result;
-    }
-    private void CordinateEncryiption()
-    {
-
     }
 
     private string CharicEncrypter(string binaryString)

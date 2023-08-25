@@ -5,6 +5,6 @@ public class ImageFileManager : ConsoleController
     {
         //cw("File Path :");
         //encryptionManager.Encrypt(Console.ReadLine()+"");
-        encryptionManager.Encrypt(@"C:\Users\Computer\Documents\Software\CSharp\ImageFormatTest1\Resources\ColorMix.png");
+        cwl(encryptionManager.Encrypt(@"C:\Users\Computer\Documents\Software\CSharp\ImageFormatTest1\Resources\ColorMix.png"));
     }
 }
