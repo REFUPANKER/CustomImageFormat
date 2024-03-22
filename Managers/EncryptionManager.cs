@@ -1,6 +1,6 @@
 
 using System.Drawing;
-
+#pragma warning disable CA1416
 public class EncryptionManager : ConsoleController
 {
 
@@ -23,38 +23,64 @@ public class EncryptionManager : ConsoleController
 
     private Dictionary<Color, string> imageColors = new Dictionary<Color, string>();
 
-    public string Encrypt(string filePath)
+    public string Encrypt(string filePath, string? saveTo = null)
     {
         string result = "";
         Bitmap bmp = new Bitmap(filePath);
-        cwl("Encrypting ...");
-        for (int i = 0; i < bmp.Height; i++)
+        Thread EncingThread = new Thread(() =>
         {
-            for (int j = 0; j < bmp.Width; j++)
+            cwl("Encrypting ...");
+            for (int i = 0; i < bmp.Height; i++)
             {
-                Color pixel = bmp.GetPixel(j, i);
-                if (imageColors.Keys.Contains(pixel) == false)
+                for (int j = 0; j < bmp.Width; j++)
                 {
-                    imageColors.Add(pixel, $"({j},{i})");
-                    //cwl("pixel added : " + $"{pixel.R},{pixel.G},{pixel.B}");
-                    //cwl(ColorEncryption(pixel));
-                }
-                else
-                {
-                    //cwl("---> pixel exists: " + $"{pixel.R},{pixel.G},{pixel.B}");
-                    imageColors[pixel] += $",({j},{i})";
-                }
+                    Color pixel = bmp.GetPixel(j, i);
+                    if (imageColors.Keys.Contains(pixel) == false)
+                    {
+                        imageColors.Add(pixel, $"({j},{i})");
+                        //cwl("pixel added : " + $"{pixel.R},{pixel.G},{pixel.B}");
+                        //cwl(ColorEncryption(pixel));
+                    }
+                    else
+                    {
+                        //cwl("---> pixel exists: " + $"{pixel.R},{pixel.G},{pixel.B}");
+                        imageColors[pixel] += $",({j},{i})";
+                    }
 
+                }
+                //cwl("%" + ((float)((i + 1) * 100) / bmp.Height));
             }
-            cwl("%" + (((i + 1) * 100) / bmp.Height));
-        }
-        cwl("Encryption Completed");
-        cwl(createLine(20, "="));
+            cwl("Encryption Completed");
+            cwl(createLine(20, "="));
 
-        foreach (var item in imageColors)
+        });
+        EncingThread.Start();
+        EncingThread.Join();
+
+        if (saveTo != null)
         {
-            result+=ColorEncryption(item.Key) + ":" + item.Value+"\n";
+            Thread savingThread = new Thread(() =>
+            {
+                cwl("Writing to file ...");
+                StreamWriter wr = new StreamWriter(saveTo);
+                for (int i = 0; i < imageColors.Count; i++)
+                {
+                    wr.WriteLine(ColorEncryption(imageColors.ElementAt(i).Key) + ":" + imageColors.ElementAt(i).Value);
+                    //cwl("Enc>Write : %" + ((float)(i + 1) * 100 / imageColors.Count));
+                }
+                wr.Close();
+                cwl("Encryption saved");
+            });
+            savingThread.Start();
+            savingThread.Join();
         }
+
+        for (int i = 0; i < imageColors.Count; i++)
+        {
+            result += ColorEncryption(imageColors.ElementAt(i).Key) + ":" + imageColors.ElementAt(i).Value;
+            result += (i + 1 < imageColors.Count) ? "\n" : "";
+        }
+
 
         return result;
     }
@@ -81,21 +107,28 @@ public class EncryptionManager : ConsoleController
         int count = 1;
         char last = binaryString[0];
         string encres = "";//encryiption result
-        // using X for 0 , Y for 1 at stacking values
-        for (int i = 1; i < binaryString.Length; i++)
+                           // using X for 0 , Y for 1 at stacking values
+        Thread encTh = new Thread(() =>
         {
-            if (last == binaryString[i])
+
+            for (int i = 1; i < binaryString.Length; i++)
             {
-                count += 1;
+                if (last == binaryString[i])
+                {
+                    count += 1;
+                }
+                else
+                {
+                    encres += count + ((last == '0') ? 'x' : 'y').ToString();
+                    count = 1;
+                    last = binaryString[i];
+                }
             }
-            else
-            {
-                encres += count + ((last == '0') ? 'x' : 'y').ToString();
-                count = 1;
-                last = binaryString[i];
-            }
-        }
-        encres += count + ((last == '0') ? 'x' : 'y').ToString();
+            encres += count + ((last == '0') ? 'x' : 'y').ToString();
+        });
+        encTh.Start();
+        encTh.Join();
+
         return encres;
     }
 }
